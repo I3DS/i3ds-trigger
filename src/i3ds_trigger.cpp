@@ -1,6 +1,37 @@
-
 #include <stdio.h>
 #include "trigger_driver.h"
+#include <i3ds/trigger.hpp>
+
+namespace i3ds
+{
+  
+class PetalinuxTrigger : Trigger
+{
+
+protected:
+
+  // Handler for trigger generator command, must be overloaded.
+  void handle_generator(GeneratorService::Data& command) override {
+  }
+
+  // Handler for trigger internal channel command, must be overloaded.
+  void handle_internal_channel(InternalChannelService::Data& command) {
+  }
+
+  // Handler for trigger external channel command, must be overloaded.
+  void handle_external_channel(ExternalChannelService::Data& command) {
+  }
+
+  // Handler for channel enable command, must be overloaded.
+  void handle_enable_channel(ChannelEnableService::Data& command) {
+  }
+
+  // Handler for channel disable command, must be overloaded.
+  void handle_disable_channel(ChannelDisableService::Data& command) {
+  }
+
+};
+}
 
 int main(void)
 {

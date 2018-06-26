@@ -8,7 +8,6 @@ cd build_petalinux
 cmake .. -DCMAKE_C_COMPILER="aarch64-linux-gnu-gcc" \
       -DCMAKE_CXX_COMPILER="aarch64-linux-gnu-c++" \
       -DCMAKE_FIND_ROOT_PATH="$BSP_ROOT" \
-      -DBUILD_EMBEDDED=ON \
-      -DASN1CC_SRC_ROOT_FOLDER=$ASN1CC_ROOT
+      -DBUILD_EMBEDDED=ON
 
 make -j4
