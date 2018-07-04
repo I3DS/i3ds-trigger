@@ -1,6 +1,10 @@
 #ifndef _TRIGGER_DRIVER_H
 #define _TRIGGER_DRIVER_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <inttypes.h>
 #include <stdbool.h>
 // External triggers
@@ -62,5 +66,8 @@ void trigger_configure(TRIGGER_ID trig_id, GENERATOR_ID gen_id,
 // Set if the trigger output should be high when not triggered
 void trigger_set_inverted(TRIGGER_ID trig_id, bool inverted);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _TRIGGER_DRIVER_H
