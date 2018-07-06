@@ -45,3 +45,4 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 target_compile_features(i3ds_trigger PRIVATE cxx_range_for)
 
+install (TARGETS i3ds_trigger DESTINATION bin)
