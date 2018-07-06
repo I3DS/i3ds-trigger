@@ -37,6 +37,9 @@ add_executable (i3ds_trigger_demo src/trigger_demo.c ${SRCS})
 
 add_executable (i3ds_trigger src/i3ds_trigger.cpp ${SRCS})
 
+target_link_libraries(i3ds_trigger ${LIBS})
+
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 target_compile_features(i3ds_trigger PRIVATE cxx_range_for)
+

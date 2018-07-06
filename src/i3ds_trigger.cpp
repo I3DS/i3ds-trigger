@@ -1,87 +1,110 @@
+#include <iostream>
 #include <stdio.h>
-#include "trigger_driver.h"
+#include <unistd.h>
+
 #include <i3ds/trigger.hpp>
+#include <i3ds/communication.hpp>
+#include <i3ds/server.hpp>
+
+#include "trigger_driver.h"
 
 namespace i3ds
 {
-  
-class PetalinuxTrigger : Trigger
+
+class PetalinuxTrigger : public Trigger
 {
+public:
+
+  typedef std::shared_ptr<PetalinuxTrigger> Ptr;
+  static Ptr Create(Context::Ptr context, NodeID id)
+  {
+    return std::make_shared<PetalinuxTrigger>(context, id);
+  }
+
+  PetalinuxTrigger(Context::Ptr context, NodeID sensor);
 
 protected:
 
   // Handler for trigger generator command, must be overloaded.
   void handle_generator(GeneratorService::Data& command) override {
+    std::cout << "Handle generator" << std::endl;
+    GENERATOR_ID gen_id = static_cast<GENERATOR_ID>(command.request.generator);
+    trigger_set_generator_period(gen_id, command.request.period);
   }
 
   // Handler for trigger internal channel command, must be overloaded.
   void handle_internal_channel(InternalChannelService::Data& command) {
+    std::cout << "Handle channel" << std::endl;
+    TRIGGER_ID chan_id = static_cast<TRIGGER_ID>(command.request.channel);
+    GENERATOR_ID gen_id = static_cast<GENERATOR_ID>(command.request.source);
+    bool autostart = false;
+    trigger_configure(chan_id, gen_id, command.request.offset, command.request.duration, command.request.invert, autostart);
   }
 
   // Handler for trigger external channel command, must be overloaded.
   void handle_external_channel(ExternalChannelService::Data& command) {
+    std::cout << "Handle external channel (not implemented)" << std::endl;
+    //TODO (sigurdm): implement
   }
 
   // Handler for channel enable command, must be overloaded.
   void handle_enable_channel(ChannelEnableService::Data& command) {
+    std::cout << "Handle enable" << std::endl;
+    //TODO (sigurdm): implement array/mask version?
+    for (int i=0; i<8; i++) {
+      if (command.request.arr[i]) {
+	TRIGGER_ID chan_id = static_cast<TRIGGER_ID>(i);
+	trigger_enable(chan_id);
+      }
+    }
   }
 
   // Handler for channel disable command, must be overloaded.
   void handle_disable_channel(ChannelDisableService::Data& command) {
+    std::cout << "Handle disable" << std::endl;
+    //TODO (sigurdm): implement array/mask version?
+    for (int i=0; i<8; i++) {
+      if (command.request.arr[i]) {
+	TRIGGER_ID chan_id = static_cast<TRIGGER_ID>(i);
+	trigger_disable(chan_id);
+      }
+    }
   }
 
 };
 }
 
-int main(void)
+i3ds::PetalinuxTrigger::PetalinuxTrigger(Context::Ptr context, NodeID sensor)
+  : Trigger(sensor)
 {
-	char userInput = '0';
+}
 
-	TRIGGER_ID trig_id = TRIGGER_CAM_3;
-	uint32_t pulsePeriod = 100000;
-	uint32_t pulseDelay = 0;
-	uint32_t pulseWidth = 100;
-	bool invert = false;
-	// int bypass = 0;
-	GENERATOR_ID gen_id = LOCAL_GENERATOR_1;
+int main(int argc, char* argv[])
+{
+  if (argc < 2) {
+    std::cerr << "Please provide a NodeID" << std::endl;
+    return -1;
+  }
 
-	printf("Initializing system.\r\n");
-	trigger_initialize();
+  NodeID node = atoi(argv[1]);
 
-	printf("Setting all generators to %d us.\r\n", pulsePeriod);
-	for(int intTrigChan=0; intTrigChan <= GENERATOR_NUMBER_OF_GENERATORS; intTrigChan++) {
-	  trigger_set_generator_period((GENERATOR_ID)intTrigChan, pulsePeriod);
-	}
+  printf("Initializing trigger system.\r\n");
+  trigger_initialize();
 
-	printf("Configuring CAM_%d: generator %d, pulse delay: %u us, pulse width: %u us, inverted: %s.\r\n",
-	       trig_id+1, gen_id, pulseDelay, pulseWidth, invert ? "true" : "false");
-	trigger_configure(trig_id, gen_id, pulseDelay, pulseWidth*2, invert, true);
+  i3ds::Context::Ptr context = i3ds::Context::Create();
+  i3ds::PetalinuxTrigger::Ptr trigger = i3ds::PetalinuxTrigger::Create(context, node);
+  i3ds::Server server(context);
+  printf("Attaching server.\r\n");
+  trigger->Attach(server);
+  printf("Starting server.\r\n");
+  server.Start();
+  printf("Server started.\r\n");
 
-	
-	printf("Type 'q' to quit, '1' to switch LEDs on, '0' to switch them off\r\n");
-	while(userInput != 'q') 
-	{
-		scanf("%c", &userInput);
-		if (userInput == '1') 
-		{
-			printf("TRIG ON\r\n");
-			trigger_enable(trig_id);
-		} 
-		else if (userInput == '0')
-		{
-			printf("LEDS OFF\r\n");
-			trigger_disable(trig_id);
-		} else if (userInput == 'I')
-		{
-		  printf("Inverting trigger\r\n");
-		  invert ^= true;
-		  trigger_set_inverted(trig_id, invert);
-		}
-	}
+  while(true) {
+    sleep(1000);
+  }
 
-	printf("Quitting...\r\n");
-
-	trigger_deinitialize();
-
-	return 0;
+  server.Stop();
+  trigger_deinitialize();
+  return 0;
 }
