@@ -24,6 +24,8 @@ find_package (Boost COMPONENTS program_options unit_test_framework log REQUIRED)
 
 set (LIBS
   i3ds
+  zmq
+  pthread
   ${Boost_LIBRARIES}
   )
 
