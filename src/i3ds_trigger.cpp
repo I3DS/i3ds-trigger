@@ -53,8 +53,8 @@ protected:
     //TODO (sigurdm): implement array/mask version?
     for (int i=0; i<8; i++) {
       if (command.request.arr[i]) {
-	std::cout << "  Channel " << i << std::endl;
-	TRIGGER_ID chan_id = static_cast<TRIGGER_ID>(i);
+	TRIGGER_ID chan_id = static_cast<TRIGGER_ID>(i+1);
+	std::cout << "  Channel " << chan_id << std::endl;
 	trigger_enable(chan_id);
       }
     }
@@ -66,8 +66,8 @@ protected:
     //TODO (sigurdm): implement array/mask version?
     for (int i=0; i<8; i++) {
       if (command.request.arr[i]) {
-	std::cout << "  Channel " << i << std::endl;
-	TRIGGER_ID chan_id = static_cast<TRIGGER_ID>(i);
+	TRIGGER_ID chan_id = static_cast<TRIGGER_ID>(i + 1);
+	std::cout << "  Channel " << chan_id  << std::endl;
 	trigger_disable(chan_id);
       }
     }

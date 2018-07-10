@@ -10,7 +10,7 @@ extern "C" {
 // External triggers
 typedef enum TRIGGER_ID
 {
- TRIGGER_CAM_1 = 0,
+ TRIGGER_CAM_1 = 1,
  TRIGGER_CAM_2,
  TRIGGER_CAM_3,
  TRIGGER_CAM_4,
@@ -25,7 +25,7 @@ typedef enum TRIGGER_ID
 
 // Internal generators
 typedef enum GENERATOR_ID {
-  LOCAL_GENERATOR_1,
+  LOCAL_GENERATOR_1 = 1,
   LOCAL_GENERATOR_2,
   LOCAL_GENERATOR_3,
   LOCAL_GENERATOR_4,
@@ -50,9 +50,11 @@ void trigger_set_generator_period(GENERATOR_ID trig_id, uint32_t pulsePeriod);
 
 // Enable the trigger
 void trigger_enable(TRIGGER_ID trig_id);
+void trigger_mask_enable(uint32_t trig_mask);
+
 // Disable the trigger
 void trigger_disable(TRIGGER_ID trig_id);
-
+void trigger_mask_disable(uint32_t trig_mask);
 
 // Set the pulse length and width in us - (0 to 16777215) and (0 to 1023) respectively.
 void trigger_set_pulse_data(TRIGGER_ID trig_id, uint32_t pulseDelay, uint32_t pulseWidth);

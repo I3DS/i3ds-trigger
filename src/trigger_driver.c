@@ -57,13 +57,13 @@ int trigger_initialize() {
 // Convert from the TRIGGER_ID to a memory offset
 int trigger2offset(TRIGGER_ID trig_id) {
   // For now, the info is stored in the enum
-  return (int)trig_id;
+  return (int)(trig_id - 1);
 }
 
 // Convert from the GENERATOR_ID to a memory offset
 int generator2offset(GENERATOR_ID gen_id) {
   // For now, the info is stored in the enum
-  return (int)gen_id;
+  return (int)(gen_id - 1);
 }
 
 // Deinitialize the trigger driver
@@ -83,12 +83,19 @@ void trigger_deinitialize() {
 
 // Enable the trigger
 void trigger_enable(TRIGGER_ID trig_id) {
-  *TRIGGER_GET_UINT32P(TRIG_OUT_EN) |= (uint32_t)(1 << trigger2offset(trig_id));
+  trigger_mask_enable((uint32_t)(1 << trigger2offset(trig_id)));
 }
+void trigger_mask_enable(uint32_t trig_mask) {
+  *TRIGGER_GET_UINT32P(TRIG_OUT_EN) |= trig_mask;
+}
+
 
 // Disable the trigger
 void trigger_disable(TRIGGER_ID trig_id) {
-  *TRIGGER_GET_UINT32P(TRIG_OUT_EN) &= ~(uint32_t)(1 << trigger2offset(trig_id));
+  trigger_mask_disable((uint32_t)(1 << trigger2offset(trig_id)));
+}
+void trigger_mask_disable(uint32_t trig_mask) {
+  *TRIGGER_GET_UINT32P(TRIG_OUT_EN) &= ~trig_mask;
 }
 
 
