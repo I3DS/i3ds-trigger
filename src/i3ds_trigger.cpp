@@ -27,17 +27,17 @@ protected:
 
   // Handler for trigger generator command, must be overloaded.
   void handle_generator(GeneratorService::Data& command) override {
-    std::cout << "Handle generator" << std::endl;
     GENERATOR_ID gen_id = static_cast<GENERATOR_ID>(command.request.generator);
+    std::cout << "Attempting to set generator " << gen_id << " period to " << command.request.period << std::endl;
     trigger_set_generator_period(gen_id, command.request.period);
   }
 
   // Handler for trigger internal channel command, must be overloaded.
   void handle_internal_channel(InternalChannelService::Data& command) {
-    std::cout << "Handle channel" << std::endl;
     TRIGGER_ID chan_id = static_cast<TRIGGER_ID>(command.request.channel);
     GENERATOR_ID gen_id = static_cast<GENERATOR_ID>(command.request.source);
     bool autostart = false;
+    std::cout << "Attempting to configure channel " << chan_id << ": gen " << gen_id << ", offset " << command.request.offset << ", duration " << command.request.duration << ", invert " << command.request.invert  << std::endl;
     trigger_configure(chan_id, gen_id, command.request.offset, command.request.duration, command.request.invert, autostart);
   }
 
@@ -49,10 +49,11 @@ protected:
 
   // Handler for channel enable command, must be overloaded.
   void handle_enable_channel(ChannelEnableService::Data& command) {
-    std::cout << "Handle enable" << std::endl;
+    std::cout << "Enabling channels:" << std::endl;
     //TODO (sigurdm): implement array/mask version?
     for (int i=0; i<8; i++) {
       if (command.request.arr[i]) {
+	std::cout << "  Channel " << i << std::endl;
 	TRIGGER_ID chan_id = static_cast<TRIGGER_ID>(i);
 	trigger_enable(chan_id);
       }
@@ -61,10 +62,11 @@ protected:
 
   // Handler for channel disable command, must be overloaded.
   void handle_disable_channel(ChannelDisableService::Data& command) {
-    std::cout << "Handle disable" << std::endl;
+    std::cout << "Disabling channels:" << std::endl;
     //TODO (sigurdm): implement array/mask version?
     for (int i=0; i<8; i++) {
       if (command.request.arr[i]) {
+	std::cout << "  Channel " << i << std::endl;
 	TRIGGER_ID chan_id = static_cast<TRIGGER_ID>(i);
 	trigger_disable(chan_id);
       }
@@ -82,7 +84,7 @@ i3ds::PetalinuxTrigger::PetalinuxTrigger(Context::Ptr context, NodeID sensor)
 int main(int argc, char* argv[])
 {
   if (argc < 2) {
-    std::cerr << "Please provide a NodeID" << std::endl;
+    std::cerr << "Please provide a NodeID for this node" << std::endl;
     return -1;
   }
 
