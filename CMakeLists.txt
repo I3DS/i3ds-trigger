@@ -20,7 +20,7 @@ if (BUILD_EMBEDDED)
 endif (BUILD_EMBEDDED)
 
 
-find_package (Boost COMPONENTS program_options unit_test_framework log REQUIRED)
+find_package (Boost COMPONENTS program_options log REQUIRED)
 
 set (LIBS
   i3ds
