@@ -4,6 +4,12 @@
 
 #include <boost/program_options.hpp>
 
+#define BOOST_LOG_DYN_LINK
+
+#include <boost/log/core.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/log/expressions.hpp>
+
 #include <i3ds/trigger.hpp>
 #include <i3ds/communication.hpp>
 #include <i3ds/server.hpp>
@@ -11,6 +17,7 @@
 #include "trigger_driver.h"
 
 namespace po = boost::program_options;
+namespace logging = boost::log;
 
 namespace i3ds
 {
@@ -98,7 +105,16 @@ int main(int argc, char* argv[])
   ("addr-server,as", po::value(&addr_server)->default_value(""), "Address to the address-server")
   ;
 
-  printf("Initializing trigger system.\r\n");
+  po::variables_map vm;
+  po::store(po::parse_command_line(argc, argv, desc), vm);
+  po::notify(vm);
+
+  if (vm.count("help")) {
+    BOOST_LOG_TRIVIAL(info) << desc;
+    return -1;
+  }
+
+  BOOST_LOG_TRIVIAL(info) << "Initializing trigger system.";
   trigger_initialize();
 
   i3ds::Context::Ptr context;
@@ -108,13 +124,14 @@ int main(int argc, char* argv[])
     context = std::make_shared<i3ds::Context>(addr_server);
   }
 
+  BOOST_LOG_TRIVIAL(info) << "Creating trigger node with id: " << node_id;
   i3ds::PetalinuxTrigger::Ptr trigger = i3ds::PetalinuxTrigger::Create(context, node_id);
   i3ds::Server server(context);
-  printf("Attaching server.\r\n");
+  BOOST_LOG_TRIVIAL(info) << "Attaching server.";
   trigger->Attach(server);
-  printf("Starting server.\r\n");
+  BOOST_LOG_TRIVIAL(info) << "Starting server.";
   server.Start();
-  printf("Server started.\r\n");
+  BOOST_LOG_TRIVIAL(info) << "Server started.";
 
   while(true) {
     sleep(1000);
