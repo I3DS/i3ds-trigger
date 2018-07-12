@@ -1,6 +1,6 @@
 #!/bin/sh
 
-BSP_NAME=i3ds_bsp
+BSP_NAME=i3ds-bsp
 BSP_ROOT=/opt/bsp/$BSP_NAME/build/tmp/sysroots/plnx_aarch64
 
 mkdir -p build_petalinux
