@@ -2,11 +2,15 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#include <boost/program_options.hpp>
+
 #include <i3ds/trigger.hpp>
 #include <i3ds/communication.hpp>
 #include <i3ds/server.hpp>
 
 #include "trigger_driver.h"
+
+namespace po = boost::program_options;
 
 namespace i3ds
 {
@@ -83,18 +87,28 @@ i3ds::PetalinuxTrigger::PetalinuxTrigger(Context::Ptr context, NodeID sensor)
 
 int main(int argc, char* argv[])
 {
-  if (argc < 2) {
-    std::cerr << "Please provide a NodeID for this node" << std::endl;
-    return -1;
-  }
+  NodeID node_id = atoi(argv[1]);
+  std::string addr_server;
 
-  NodeID node = atoi(argv[1]);
+  po::options_description desc("Driver for the trigger system");
+
+  desc.add_options()
+  ("help", "Show help")
+  ("node,n", po::value(&node_id)->default_value(300), "NodeID")
+  ("addr-server,as", po::value(&addr_server)->default_value(""), "Address to the address-server")
+  ;
 
   printf("Initializing trigger system.\r\n");
   trigger_initialize();
 
-  i3ds::Context::Ptr context = i3ds::Context::Create();
-  i3ds::PetalinuxTrigger::Ptr trigger = i3ds::PetalinuxTrigger::Create(context, node);
+  i3ds::Context::Ptr context;
+  if (addr_server.empty()) {
+    context = i3ds::Context::Create();
+  } else {
+    context = std::make_shared<i3ds::Context>(addr_server);
+  }
+
+  i3ds::PetalinuxTrigger::Ptr trigger = i3ds::PetalinuxTrigger::Create(context, node_id);
   i3ds::Server server(context);
   printf("Attaching server.\r\n");
   trigger->Attach(server);
