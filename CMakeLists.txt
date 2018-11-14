@@ -19,7 +19,6 @@ if (BUILD_EMBEDDED)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --sysroot=${CMAKE_FIND_ROOT_PATH}")
 endif (BUILD_EMBEDDED)
 
-
 find_package (Boost COMPONENTS program_options log REQUIRED)
 
 set (LIBS
@@ -33,11 +32,11 @@ include_directories(BEFORE include)
 
 set (SRCS
   src/trigger_driver.c
+  src/peta_trigger.cpp
+  src/i3ds_trigger.cpp
   )
 
-add_executable (i3ds_trigger_demo src/trigger_demo.c ${SRCS})
-
-add_executable (i3ds_trigger src/i3ds_trigger.cpp ${SRCS})
+add_executable (i3ds_trigger ${SRCS})
 
 target_link_libraries(i3ds_trigger ${LIBS})
 
