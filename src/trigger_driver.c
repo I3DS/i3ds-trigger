@@ -43,7 +43,7 @@ struct trigger_device
 #define PHYSICAL_ADDRESS XPAR_CAMERA_TRIG_GEN_IP_0_S00_AXI_BASEADDR
 #define ADDRESS_RANGE (XPAR_CAMERA_TRIG_GEN_IP_0_S00_AXI_HIGHADDR - XPAR_CAMERA_TRIG_GEN_IP_0_S00_AXI_BASEADDR)
 
-struct trigger_device *trigger = NULL;
+volatile struct trigger_device *trigger = NULL;
 
 int _fdmemHandle;
 const char _memDevice[] = "/dev/mem";
@@ -74,7 +74,7 @@ int trigger_initialize()
 void trigger_deinitialize()
 {
   // De-allocate
-  if (munmap(trigger, ADDRESS_RANGE) == -1)
+  if (munmap((void *) trigger, ADDRESS_RANGE) == -1)
   {
     perror("Error occurred when un-mmapping /dev/mem\r\n");
   }
@@ -83,6 +83,11 @@ void trigger_deinitialize()
 
   // Close the character device
   close(_fdmemHandle);
+}
+
+static inline void trigger_sync()
+{
+  msync((void *) trigger, ADDRESS_RANGE, MS_SYNC);
 }
 
 // Convert from the GENERATOR_ID to a memory offset
@@ -107,18 +112,21 @@ static inline uint32_t trigger2mask(TRIGGER_ID trig_id)
 void trigger_enable(TRIGGER_ID trig_id)
 {
   trigger->trigger_output_enable |= trigger2mask(trig_id);
+  trigger_sync();
 }
 
 // Disable the trigger
 void trigger_disable(TRIGGER_ID trig_id)
 {
   trigger->trigger_output_enable &= ~trigger2mask(trig_id);
+  trigger_sync();
 }
 
 // Select generator
 void trigger_select_generator(TRIGGER_ID trig_id, GENERATOR_ID gen_id)
 {
   trigger->trigger_select[trigger2offset(trig_id)] = generator2offset(gen_id);
+  trigger_sync();
 }
 
 // Configure a trigger, by associating a trigger with a generator,
@@ -148,6 +156,8 @@ void trigger_set_inverted(TRIGGER_ID trig_id, bool inverted)
     {
       trigger->trigger_output_invert &= ~trigger2mask(trig_id);
     }
+
+  trigger_sync();
 }
 
 // Set the pulse length and width in us - (0 to 16777215) and (0 to 1023) respectively.
@@ -157,10 +167,12 @@ void trigger_set_pulse_data(TRIGGER_ID trig_id, uint32_t pulseDelay, uint32_t pu
 
   trigger->pulse_delay[offset] = pulseDelay;
   trigger->pulse_width[offset] = pulseWidth;
+  trigger_sync();
 }
 
 // Internal trigger priod in us (0 to 16777215)
 void trigger_set_generator_period(GENERATOR_ID gen_id, uint32_t pulsePeriod)
 {
   trigger->trigger_period[generator2offset(gen_id)] = pulsePeriod;
+  trigger_sync();
 }
