@@ -33,13 +33,11 @@ typedef enum GENERATOR_ID {
   GENERATOR_NUMBER_OF_GENERATORS
 } GENERATOR_ID;
 
-
 // Initialize the trigger driver
 int trigger_initialize();
 
 // Deinitialize the trigger driver
 void trigger_deinitialize();
-
 
 // Select generator for trigger
 void trigger_select_generator(TRIGGER_ID trig_id, GENERATOR_ID gen_id);
@@ -50,11 +48,9 @@ void trigger_set_generator_period(GENERATOR_ID trig_id, uint32_t pulsePeriod);
 
 // Enable the trigger
 void trigger_enable(TRIGGER_ID trig_id);
-void trigger_mask_enable(uint32_t trig_mask);
 
 // Disable the trigger
 void trigger_disable(TRIGGER_ID trig_id);
-void trigger_mask_disable(uint32_t trig_mask);
 
 // Set the pulse length and width in us - (0 to 16777215) and (0 to 1023) respectively.
 void trigger_set_pulse_data(TRIGGER_ID trig_id, uint32_t pulseDelay, uint32_t pulseWidth);
