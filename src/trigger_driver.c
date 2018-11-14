@@ -31,7 +31,12 @@ void *triggerBaseAddr = NULL;
 int _fdmemHandle;
 const char _memDevice[] = "/dev/mem";
 
-#define TRIGGER_GET_UINT32P(X) (uint32_t *)(triggerBaseAddr + X)
+uint32_t *TRIGGER_GET_UINT32P(size_t offset) {
+  if (offset > ADDRESS_RANGE) {
+    return 0;
+  }
+  return triggerBaseAddr + offset;
+}
 
 // Initialize the trigger driver
 int trigger_initialize() {
@@ -137,6 +142,6 @@ void trigger_set_pulse_data(TRIGGER_ID trig_id, uint32_t pulseDelay, uint32_t pu
 }
 
 // Internal trigger priod in us (0 to 16777215)
-void trigger_set_generator_period(GENERATOR_ID trig_id, uint32_t pulsePeriod) {
-    *TRIGGER_GET_UINT32P(TRIG_PERIOD_BASE + trigger2offset(trig_id)*4) = pulsePeriod;
+void trigger_set_generator_period(GENERATOR_ID gen_id, uint32_t pulsePeriod) {
+    *TRIGGER_GET_UINT32P(TRIG_PERIOD_BASE + trigger2offset(gen_id)*4) = pulsePeriod;
 }

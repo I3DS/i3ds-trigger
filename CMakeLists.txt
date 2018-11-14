@@ -40,7 +40,7 @@ add_executable (i3ds_trigger ${SRCS})
 
 target_link_libraries(i3ds_trigger ${LIBS})
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -g")
 
 target_compile_features(i3ds_trigger PRIVATE cxx_range_for)
 
